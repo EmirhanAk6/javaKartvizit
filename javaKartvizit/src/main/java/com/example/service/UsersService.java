@@ -7,7 +7,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
 import com.example.dto.AuthResponse;
 import com.example.dto.SignupRequest;
 import com.example.dto.LoginRequest;
@@ -63,13 +62,13 @@ public class UsersService {
 	public AuthResponse login(LoginRequest request) {
         try {
             // Find user by username
-            Optional<User> userOptional = userRepository.findByUsername(request.getUsername());
+            Optional<UsersModel> userOptional = usersRepository.findByUsername(request.getUsername());
             
             if (userOptional.isEmpty()) {
                 return new AuthResponse("User not found!", false);
             }
             
-            User user = userOptional.get();
+            UsersModel user = userOptional.get();
             
             // Check password
             if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
@@ -93,5 +92,3 @@ public class UsersService {
     }
 }
 
-
-}

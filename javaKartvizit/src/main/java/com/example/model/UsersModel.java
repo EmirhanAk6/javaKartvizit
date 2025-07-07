@@ -1,7 +1,7 @@
 package com.example.model;
 
-import java.util.Objects;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,66 +19,37 @@ public class UsersModel {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	Integer id;
 
-	String name;
+	@Column(unique = true, nullable = false)
+	String username;
 	
+	@Column(nullable = false)
 	String password;
 	
+	@Column(unique = true, nullable = false)
 	String email;
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
-	public String getLogin() {
-		return name;
-	}
-
-	public void setLogin(String login) {
-		this.name = login;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(email, id, name, password);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		UsersModel other = (UsersModel) obj;
-		return Objects.equals(email, other.email) && Objects.equals(id, other.id) && Objects.equals(name, other.name)
-				&& Objects.equals(password, other.password);
-	}
-
-	@Override
-	public String toString() {
-		return "UsersModel [id=" + id + ", login=" + name + ", email=" + email + "]";
-	}
 	
+    // Constructors
+    public UsersModel() {}
+    
+    public UsersModel(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
+
+    // Getters and Setters
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
+    
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+    
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+
+
 	
 }
