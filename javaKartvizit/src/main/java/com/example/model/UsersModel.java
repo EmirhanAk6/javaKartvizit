@@ -19,7 +19,7 @@ public class UsersModel {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	Integer id;
 
-	String login;
+	String name;
 	
 	String password;
 	
@@ -34,11 +34,11 @@ public class UsersModel {
 	}
 
 	public String getLogin() {
-		return login;
+		return name;
 	}
 
 	public void setLogin(String login) {
-		this.login = login;
+		this.name = login;
 	}
 
 	public String getPassword() {
@@ -59,7 +59,7 @@ public class UsersModel {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(email, id, login, password);
+		return Objects.hash(email, id, name, password);
 	}
 
 	@Override
@@ -71,13 +71,13 @@ public class UsersModel {
 		if (getClass() != obj.getClass())
 			return false;
 		UsersModel other = (UsersModel) obj;
-		return Objects.equals(email, other.email) && Objects.equals(id, other.id) && Objects.equals(login, other.login)
+		return Objects.equals(email, other.email) && Objects.equals(id, other.id) && Objects.equals(name, other.name)
 				&& Objects.equals(password, other.password);
 	}
 
 	@Override
 	public String toString() {
-		return "UsersModel [id=" + id + ", login=" + login + ", email=" + email + "]";
+		return "UsersModel [id=" + id + ", login=" + name + ", email=" + email + "]";
 	}
 	
 	
