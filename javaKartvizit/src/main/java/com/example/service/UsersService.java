@@ -1,15 +1,15 @@
+
+
 package com.example.service;
 
-import java.util.UUID;
 import java.util.Optional;
-
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.example.dto.AuthResponse;
-import com.example.dto.SignupRequest;
-import com.example.dto.LoginRequest;
+import com.example.dto.userDto.AuthResponse;
+import com.example.dto.userDto.SignupRequest;
+import com.example.dto.userDto.LoginRequest;
 import com.example.model.UsersModel;
 import com.example.repository.UsersRepository;
 
@@ -21,6 +21,9 @@ public class UsersService {
 	
 	@Autowired
     private PasswordEncoder passwordEncoder;
+    
+    @Autowired
+    private JwtService jwtService;
 	
 	
 	public AuthResponse signup(SignupRequest request) {
@@ -43,8 +46,8 @@ public class UsersService {
             
             UsersModel savedUser = usersRepository.save(user);
             
-            // Generate token (simple UUID for demo)
-            String token = UUID.randomUUID().toString();
+            // Generate JWT token
+            String token = jwtService.generateToken(savedUser.getId(), savedUser.getUsername());
             
             AuthResponse.UserInfo userInfo = new AuthResponse.UserInfo(
                 savedUser.getId(),
@@ -75,8 +78,8 @@ public class UsersService {
                 return new AuthResponse("Invalid password!", false);
             }
             
-            // Generate token (simple UUID for demo)
-            String token = UUID.randomUUID().toString();
+            // Generate JWT token
+            String token = jwtService.generateToken(user.getId(), user.getUsername());
             
             AuthResponse.UserInfo userInfo = new AuthResponse.UserInfo(
                 user.getId(),
