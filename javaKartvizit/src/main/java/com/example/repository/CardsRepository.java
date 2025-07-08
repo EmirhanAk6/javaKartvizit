@@ -15,8 +15,9 @@ public interface CardsRepository extends JpaRepository<CardsModel, Integer> {
     List<CardsModel> findByUserOrderByIdDesc(UsersModel user);
     long countByUser(UsersModel user);
     
-    @Query("SELECT b FROM BusinessCard b WHERE " +
-           "(LOWER(b.fullName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-           "LOWER(b.jobTitle) LIKE LOWER(CONCAT('%', :searchTerm, '%')))")
+    // Düzeltilmiş arama query'si
+    @Query("SELECT c FROM CardsModel c WHERE " +
+           "(LOWER(c.fullName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+           "LOWER(c.jobTitle) LIKE LOWER(CONCAT('%', :searchTerm, '%')))")
     List<CardsModel> searchPublicCards(@Param("searchTerm") String searchTerm);
 }

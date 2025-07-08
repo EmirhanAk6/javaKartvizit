@@ -32,11 +32,12 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll() // Kayıt/giriş için açık
-                .anyRequest().authenticated()                // Diğer istekler giriş gerektirir
+                .requestMatchers("/api/auth/**").permitAll()  // Auth endpointleri açık
+                .requestMatchers("/api/cards/**").permitAll() // Cards endpointleri açık
+                .anyRequest().authenticated()                 // Diğer istekler giriş gerektirir
             )
-            .formLogin(form -> form.disable())              // Form login devre dışı
-            .httpBasic(httpBasic -> httpBasic.disable());   // Basic auth devre dışı
+            .formLogin(form -> form.disable())               // Form login devre dışı
+            .httpBasic(httpBasic -> httpBasic.disable());    // Basic auth devre dışı
 
         return http.build();
     }
