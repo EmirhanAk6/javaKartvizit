@@ -64,6 +64,8 @@ public class CardsController {
         }
     }
     
+    // TOKEN YAPISINA FİLTRELEME
+    
     // Kullanıcının kartvizitlerini getir
     @GetMapping("/my-cards")
     public ResponseEntity<?> getMyCards(@RequestHeader("Authorization") String authHeader) {
@@ -86,7 +88,7 @@ public class CardsController {
         }
     }
     
-    // Tüm public kartvizitleri getir
+    // BU KALDIRILABİLİR
     @GetMapping("/public")
     public ResponseEntity<?> getPublicCards() {
         try {
@@ -98,6 +100,9 @@ public class CardsController {
             return ResponseEntity.badRequest().body(error);
         }
     }
+    
+    
+    // KONTROL EKLEMEK GEREKİR CARDIDININ İÇİNDEKİ USER ID İLE JWT TOKENİN İÇİNDEKİ USER ID KONTROLÜ 
     
     // Belirli bir kartviziti getir
     @GetMapping("/{cardId}")
