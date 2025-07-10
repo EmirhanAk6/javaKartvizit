@@ -7,8 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-import com.example.service.JwtService;
 
+
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,8 +22,6 @@ public class CardsController {
     @Autowired
     private CardsService cardsService;
     
-    @Autowired
-    private JwtService jwtService;
     
     // Test endpoint
     @GetMapping("/test")
@@ -34,17 +33,17 @@ public class CardsController {
     @GetMapping("/my-cards")
     public ResponseEntity<?> getUserCards(
     		@PathVariable Integer userId,
-    		@RequestHeader("Authorization") String authHeader) {
+            HttpServletRequest request) {
         try {
-            // Token'ı kontrol et
+            /* Token'ı kontrol et
             String token = extractToken(authHeader);
             if (!jwtService.validateToken(token)) {
                 Map<String, String> error = new HashMap<>();
                 error.put("error", "Invalid or expired token");
                 return ResponseEntity.status(401).body(error);
-            }
+            } */
             
-            Integer tokenUserId = jwtService.getUserIdFromToken(token);
+            Integer tokenUserId = (Integer) request.getAttribute("userId");
             if (!tokenUserId.equals(userId)) {
                 Map<String, String> error = new HashMap<>();
                 error.put("error", "You can only access your own cards");
@@ -64,7 +63,7 @@ public class CardsController {
     public ResponseEntity<?> createCard(
     		@PathVariable Integer userId,
             @Valid @RequestBody CardRequest request,
-            @RequestHeader("Authorization") String authHeader,
+            HttpServletRequest httpRequest,
             BindingResult result) {
         
         if (result.hasErrors()) {
@@ -76,16 +75,16 @@ public class CardsController {
         }
         
         try {
-            // Token'ı kontrol et
+            /* Token'ı kontrol et
             String token = extractToken(authHeader);
             if (!jwtService.validateToken(token)) {
                 Map<String, String> error = new HashMap<>();
                 error.put("error", "Invalid or expired token");
                 return ResponseEntity.status(401).body(error);
-            }
+            } */
             
        
-            Integer tokenUserId = jwtService.getUserIdFromToken(token);
+            Integer tokenUserId = (Integer) httpRequest.getAttribute("userId");
             
             // URL'deki userId ile token'daki userId'nin eşleşmesini kontrol et
             if (!tokenUserId.equals(userId)) {
@@ -128,7 +127,7 @@ public class CardsController {
     		@PathVariable Integer userId,
             @PathVariable Integer cardId,
             @Valid @RequestBody CardRequest request,
-            @RequestHeader("Authorization") String authHeader,
+            HttpServletRequest httpRequest,
             BindingResult result) {
         
         if (result.hasErrors()) {
@@ -140,15 +139,15 @@ public class CardsController {
         }
         
         try {
-            // Token'ı kontrol et
+            /* Token'ı kontrol et
             String token = extractToken(authHeader);
             if (!jwtService.validateToken(token)) {
                 Map<String, String> error = new HashMap<>();
                 error.put("error", "Invalid or expired token");
                 return ResponseEntity.status(401).body(error);
-            }
+            } */
             
-            Integer tokenUserId = jwtService.getUserIdFromToken(token);
+            Integer tokenUserId = (Integer) httpRequest.getAttribute("userId");
             
             // URL'deki userId ile token'daki userId'nin eşleşmesini kontrol et
             if (!tokenUserId.equals(userId)) {
@@ -170,17 +169,17 @@ public class CardsController {
     public ResponseEntity<?> deleteCard(
     		@PathVariable Integer userId,
             @PathVariable Integer cardId,
-            @RequestHeader("Authorization") String authHeader) {
+            HttpServletRequest httpRequest) {
         try {
-            // Token'ı kontrol et
+            /* Token'ı kontrol et
             String token = extractToken(authHeader);
             if (!jwtService.validateToken(token)) {
                 Map<String, String> error = new HashMap<>();
                 error.put("error", "Invalid or expired token");
                 return ResponseEntity.status(401).body(error);
-            }
+            } */
             
-            Integer tokenUserId = jwtService.getUserIdFromToken(token);
+            Integer tokenUserId = (Integer) httpRequest.getAttribute("userId");
             
             // URL'deki userId ile token'daki userId'nin eşleşmesini kontrol et
             if (!tokenUserId.equals(userId)) {
@@ -201,11 +200,11 @@ public class CardsController {
     
 
     
-    // Token'ı header'dan çıkar
+    /* Token'ı header'dan çıkar
     private String extractToken(String authHeader) {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7);
         }
         throw new RuntimeException("Authorization header is missing or invalid");
-    }
+    }*/
 }
