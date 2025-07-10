@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/cards")
+@RequestMapping("/api/{userId}/cards")
 @CrossOrigin(origins = "*")
 public class CardsController {
     
@@ -30,9 +30,39 @@ public class CardsController {
         return ResponseEntity.ok("Business Card API is working!");
     }
     
+    // Kullanıcının kartvizitlerini getir
+    @GetMapping("/my-cards")
+    public ResponseEntity<?> getUserCards(
+    		@PathVariable Integer userId,
+    		@RequestHeader("Authorization") String authHeader) {
+        try {
+            // Token'ı kontrol et
+            String token = extractToken(authHeader);
+            if (!jwtService.validateToken(token)) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Invalid or expired token");
+                return ResponseEntity.status(401).body(error);
+            }
+            
+            Integer tokenUserId = jwtService.getUserIdFromToken(token);
+            if (!tokenUserId.equals(userId)) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "You can only access your own cards");
+                return ResponseEntity.status(403).body(error);
+            }
+            var cards = cardsService.getUserCards(userId);
+            return ResponseEntity.ok(cards);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+    
     // Kartvizit oluştur
     @PostMapping("/create")
     public ResponseEntity<?> createCard(
+    		@PathVariable Integer userId,
             @Valid @RequestBody CardRequest request,
             @RequestHeader("Authorization") String authHeader,
             BindingResult result) {
@@ -54,7 +84,15 @@ public class CardsController {
                 return ResponseEntity.status(401).body(error);
             }
             
-            Integer userId = jwtService.getUserIdFromToken(token);
+       
+            Integer tokenUserId = jwtService.getUserIdFromToken(token);
+            
+            // URL'deki userId ile token'daki userId'nin eşleşmesini kontrol et
+            if (!tokenUserId.equals(userId)) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "You can only create cards for yourself");
+                return ResponseEntity.status(403).body(error);
+            }
             var response = cardsService.createCard(request, userId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -66,30 +104,10 @@ public class CardsController {
     
     // TOKEN YAPISINA FİLTRELEME
     
-    // Kullanıcının kartvizitlerini getir
-    @GetMapping("/my-cards")
-    public ResponseEntity<?> getMyCards(@RequestHeader("Authorization") String authHeader) {
-        try {
-            // Token'ı kontrol et
-            String token = extractToken(authHeader);
-            if (!jwtService.validateToken(token)) {
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "Invalid or expired token");
-                return ResponseEntity.status(401).body(error);
-            }
-            
-            Integer userId = jwtService.getUserIdFromToken(token);
-            var cards = cardsService.getUserCards(userId);
-            return ResponseEntity.ok(cards);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(error);
-        }
-    }
+
     
     // BU KALDIRILABİLİR
-    @GetMapping("/public")
+   /*  @GetMapping("/public")
     public ResponseEntity<?> getPublicCards() {
         try {
             var cards = cardsService.getPublicCards();
@@ -99,27 +117,15 @@ public class CardsController {
             error.put("error", e.getMessage());
             return ResponseEntity.badRequest().body(error);
         }
-    }
+    } */ 
     
     
     // KONTROL EKLEMEK GEREKİR CARDIDININ İÇİNDEKİ USER ID İLE JWT TOKENİN İÇİNDEKİ USER ID KONTROLÜ 
     
-    // Belirli bir kartviziti getir
-    @GetMapping("/{cardId}")
-    public ResponseEntity<?> getCard(@PathVariable Integer cardId) {
-        try {
-            var card = cardsService.getCardById(cardId);
-            return ResponseEntity.ok(card);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(error);
-        }
-    }
-    
     // Kartvizit güncelle
-    @PutMapping("/{cardId}")
+    @PutMapping("/my-cards/{cardId}")
     public ResponseEntity<?> updateCard(
+    		@PathVariable Integer userId,
             @PathVariable Integer cardId,
             @Valid @RequestBody CardRequest request,
             @RequestHeader("Authorization") String authHeader,
@@ -142,7 +148,14 @@ public class CardsController {
                 return ResponseEntity.status(401).body(error);
             }
             
-            Integer userId = jwtService.getUserIdFromToken(token);
+            Integer tokenUserId = jwtService.getUserIdFromToken(token);
+            
+            // URL'deki userId ile token'daki userId'nin eşleşmesini kontrol et
+            if (!tokenUserId.equals(userId)) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "You can only update your own cards");
+                return ResponseEntity.status(403).body(error);
+            }
             var response = cardsService.updateCard(cardId, request, userId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -153,8 +166,9 @@ public class CardsController {
     }
     
     // Kartvizit sil
-    @DeleteMapping("/{cardId}")
+    @DeleteMapping("/my-cards/{cardId}")
     public ResponseEntity<?> deleteCard(
+    		@PathVariable Integer userId,
             @PathVariable Integer cardId,
             @RequestHeader("Authorization") String authHeader) {
         try {
@@ -166,7 +180,14 @@ public class CardsController {
                 return ResponseEntity.status(401).body(error);
             }
             
-            Integer userId = jwtService.getUserIdFromToken(token);
+            Integer tokenUserId = jwtService.getUserIdFromToken(token);
+            
+            // URL'deki userId ile token'daki userId'nin eşleşmesini kontrol et
+            if (!tokenUserId.equals(userId)) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "You can only delete your own cards");
+                return ResponseEntity.status(403).body(error);
+            }
             cardsService.deleteCard(cardId, userId);
             Map<String, String> response = new HashMap<>();
             response.put("message", "Card deleted successfully");
@@ -178,18 +199,7 @@ public class CardsController {
         }
     }
     
-    // Kartvizit arama
-    @GetMapping("/search")
-    public ResponseEntity<?> searchCards(@RequestParam String query) {
-        try {
-            var cards = cardsService.searchCards(query);
-            return ResponseEntity.ok(cards);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(error);
-        }
-    }
+
     
     // Token'ı header'dan çıkar
     private String extractToken(String authHeader) {
