@@ -116,7 +116,7 @@ public class CardsController {
             error.put("error", e.getMessage());
             return ResponseEntity.badRequest().body(error);
         }
-    } */ 
+    } */ 	
     
     
     // KONTROL EKLEMEK GEREKİR CARDIDININ İÇİNDEKİ USER ID İLE JWT TOKENİN İÇİNDEKİ USER ID KONTROLÜ 
