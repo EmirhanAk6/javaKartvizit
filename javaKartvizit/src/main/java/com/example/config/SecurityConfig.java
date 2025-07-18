@@ -11,43 +11,44 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.config.http.SessionCreationPolicy; 
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-	
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    // Parola şifreleme için BCrypt
+    @Autowired
+    private CorsConfigurationSource corsConfigurationSource;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // AuthenticationManager tanımı (giriş işlemleri için gerekli)
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
-    // SecurityFilterChain ile HTTP güvenlik yapılandırması
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource))
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()  // Auth endpointleri açık
-                .requestMatchers("/api/cards/**").permitAll()	// Public cards endpointleri açık
-                .requestMatchers("/api/*/cards/**").authenticated()// User Cards endpointleri açık
-                .anyRequest().authenticated()                 // Diğer istekler giriş gerektirir
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/cards/**").permitAll()
+                .requestMatchers("/api/*/cards/**").authenticated()
+                .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .formLogin(form -> form.disable())               // Form login devre dışı
-            .httpBasic(httpBasic -> httpBasic.disable());    // Basic auth devre dışı
+            .formLogin(form -> form.disable())
+            .httpBasic(httpBasic -> httpBasic.disable());
 
         return http.build();
     }

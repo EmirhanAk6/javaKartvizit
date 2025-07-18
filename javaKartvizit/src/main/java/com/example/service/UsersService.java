@@ -1,5 +1,3 @@
-
-
 package com.example.service;
 
 import java.util.Optional;
@@ -24,7 +22,6 @@ public class UsersService {
     
     @Autowired
     private JwtService jwtService;
-	
 	
 	public AuthResponse signup(SignupRequest request) {
         try {
@@ -68,14 +65,14 @@ public class UsersService {
             Optional<UsersModel> userOptional = usersRepository.findByUsername(request.getUsername());
             
             if (userOptional.isEmpty()) {
-                return new AuthResponse("User not found!", false);
+                return new AuthResponse("Invalid username or password!", false);
             }
             
             UsersModel user = userOptional.get();
             
             // Check password
             if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-                return new AuthResponse("Invalid password!", false);
+                return new AuthResponse("Invalid username or password!", false);
             }
             
             // Generate JWT token
@@ -94,4 +91,3 @@ public class UsersService {
         }
     }
 }
-
